@@ -3,6 +3,7 @@ package cl.gasvolcan.api.productos;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -49,6 +50,7 @@ public class ProductoController {
 
 	@PostMapping
 	@Operation(summary = "Crear un producto")
+	@SecurityRequirement(name = "bearerAuth")
 	@ApiResponses({
 			@ApiResponse(responseCode = "201", description = "Producto creado."),
 			@ApiResponse(responseCode = "400", description = "Los datos enviados no son validos.")
@@ -65,6 +67,7 @@ public class ProductoController {
 
 	@PutMapping("/{codigo}")
 	@Operation(summary = "Actualizar un producto")
+	@SecurityRequirement(name = "bearerAuth")
 	@ApiResponses({
 			@ApiResponse(responseCode = "200", description = "Producto actualizado."),
 			@ApiResponse(responseCode = "400", description = "Los datos enviados no son validos."),
@@ -78,6 +81,7 @@ public class ProductoController {
 
 	@DeleteMapping("/{codigo}")
 	@Operation(summary = "Eliminar un producto")
+	@SecurityRequirement(name = "bearerAuth")
 	@ApiResponses({
 			@ApiResponse(responseCode = "204", description = "Producto eliminado."),
 			@ApiResponse(responseCode = "404", description = "No existe un producto con ese codigo.")

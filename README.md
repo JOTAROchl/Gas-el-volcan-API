@@ -13,13 +13,18 @@ Flyway administra el esquema con migraciones SQL versionadas en `src/main/resour
 
 ## Ejecutar
 
-Desde esta carpeta, en PowerShell:
+En PowerShell, crea una clave local aleatoria de 256 bits y ejecuta la aplicacion:
 
 ```powershell
+$jwtSecretBytes = New-Object byte[] 32
+$rng = [System.Security.Cryptography.RandomNumberGenerator]::Create()
+$rng.GetBytes($jwtSecretBytes)
+$rng.Dispose()
+$env:JWT_SECRET = [Convert]::ToBase64String($jwtSecretBytes)
 .\mvnw.cmd spring-boot:run
 ```
 
-La API se ejecutara en `http://localhost:8080`.
+La variable `JWT_SECRET` es obligatoria y no debe publicarse. La API se ejecutara en `http://localhost:8080`.
 
 ## Swagger / OpenAPI
 
@@ -37,7 +42,18 @@ La API permite consultar, crear, editar y eliminar productos:
 
 El cuerpo de POST y PUT usa `categoria`, `nombre`, `descripcion`, `unidad`, `precioResidencial`, `precioComercial`, `stock` e `imagen`. El backend genera el `codigo` al crear el producto. Las validaciones devuelven `400`, los productos inexistentes `404` y los conflictos de datos `409`.
 
-Los tests usan H2 en memoria y ejecutan las migraciones; la ejecucion normal usa MySQL de Laragon. El modelo de usuario define los roles `CLIENTE` y `ADMINISTRADOR`; las contrasenas se representan como hashes BCrypt. Los endpoints de registro/inicio de sesion con JWT y la integracion con React se agregaran en etapas posteriores.
+Las consultas GET son publicas. Crear, actualizar o eliminar productos requiere un JWT con el rol `ADMINISTRADOR`; usa el boton **Authorize** de Swagger con el valor `Bearer <token>`.
+
+## Autenticacion
+
+- `POST /api/auth/registro`: crea una cuenta con rol `CLIENTE` y devuelve un JWT.
+- `POST /api/auth/login`: valida correo y contrasena y devuelve un JWT.
+
+El registro recibe `run`, `nombre`, `apellidos`, `email`, `password`, `region`, `comuna` y `direccion`. El RUN se valida en el backend, los correos y RUN duplicados se rechazan, y la contrasena se guarda con hash BCrypt. El registro no acepta ni asigna el rol de administrador.
+
+La tabla de usuarios ya esta preparada en MySQL. Para promover una cuenta a administradora en el entorno local, hazlo manualmente desde una cuenta con acceso autorizado a la base de datos; nunca expongas esa accion en el registro publico. Aun falta integrar estos endpoints con los formularios React.
+
+Los tests usan H2 en memoria y ejecutan las migraciones; la ejecucion normal usa MySQL de Laragon.
 
 ## Pruebas
 

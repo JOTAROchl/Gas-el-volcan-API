@@ -1,5 +1,8 @@
 package cl.gasvolcan.api.comun;
 
+import cl.gasvolcan.api.auth.ConflictoRegistroException;
+import cl.gasvolcan.api.auth.CredencialesInvalidasException;
+import cl.gasvolcan.api.auth.DatosRegistroInvalidosException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -35,12 +38,39 @@ public class ApiExceptionHandler {
 		return ResponseEntity.badRequest().body(detalle);
 	}
 
+	@ExceptionHandler(DatosRegistroInvalidosException.class)
+	public ResponseEntity<ProblemDetail> manejarDatosRegistroInvalidos(
+			DatosRegistroInvalidosException excepcion) {
+		ProblemDetail detalle = ProblemDetail.forStatusAndDetail(
+				HttpStatus.BAD_REQUEST,
+				excepcion.getMessage());
+		return ResponseEntity.badRequest().body(detalle);
+	}
+
+	@ExceptionHandler(ConflictoRegistroException.class)
+	public ResponseEntity<ProblemDetail> manejarConflictoRegistro(
+			ConflictoRegistroException excepcion) {
+		ProblemDetail detalle = ProblemDetail.forStatusAndDetail(
+				HttpStatus.CONFLICT,
+				excepcion.getMessage());
+		return ResponseEntity.status(HttpStatus.CONFLICT).body(detalle);
+	}
+
+	@ExceptionHandler(CredencialesInvalidasException.class)
+	public ResponseEntity<ProblemDetail> manejarCredencialesInvalidas(
+			CredencialesInvalidasException excepcion) {
+		ProblemDetail detalle = ProblemDetail.forStatusAndDetail(
+				HttpStatus.UNAUTHORIZED,
+				excepcion.getMessage());
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(detalle);
+	}
+
 	@ExceptionHandler(DataIntegrityViolationException.class)
 	public ResponseEntity<ProblemDetail> manejarConflicto(
 			DataIntegrityViolationException excepcion) {
 		ProblemDetail detalle = ProblemDetail.forStatusAndDetail(
 				HttpStatus.CONFLICT,
-				"No se pudo guardar el producto por un conflicto de datos.");
+				"No se pudo guardar por un conflicto de datos.");
 		return ResponseEntity.status(HttpStatus.CONFLICT).body(detalle);
 	}
 }
