@@ -9,7 +9,7 @@ Backend REST para el sitio web Gas El Volcan, desarrollado con Spring Boot y Jav
 
 La configuracion local espera MySQL en `localhost:3306`, una base de datos llamada `gas_el_volcan` y el usuario `root` sin contrasena, que son los valores habituales de Laragon. La base de datos se crea al iniciar la aplicacion si el usuario tiene permisos. Si tu configuracion es diferente, define `DB_URL`, `DB_USERNAME` y `DB_PASSWORD` antes de iniciar Spring Boot.
 
-Flyway administra el esquema con migraciones SQL versionadas en `src/main/resources/db/migration`. La migracion `V1__crear_tabla_productos.sql` crea la tabla de productos. Como esta base local ya tenia la tabla generada anteriormente por Hibernate, la aplicacion la adopta como version 0 y aplica la migracion inicial sin eliminarla. Hibernate queda en modo `validate` y no modifica el esquema.
+Flyway administra el esquema con migraciones SQL versionadas en `src/main/resources/db/migration`. La migracion `V1__crear_tabla_productos.sql` crea la tabla de productos y `V2__crear_tabla_usuarios.sql` crea la tabla de usuarios. Como esta base local ya tenia la tabla de productos generada anteriormente por Hibernate, la aplicacion la adopta como version 0 y aplica las migraciones sin eliminarla. Hibernate queda en modo `validate` y no modifica el esquema.
 
 ## Ejecutar
 
@@ -37,7 +37,7 @@ La API permite consultar, crear, editar y eliminar productos:
 
 El cuerpo de POST y PUT usa `categoria`, `nombre`, `descripcion`, `unidad`, `precioResidencial`, `precioComercial`, `stock` e `imagen`. El backend genera el `codigo` al crear el producto. Las validaciones devuelven `400`, los productos inexistentes `404` y los conflictos de datos `409`.
 
-Los tests usan H2 en memoria y ejecutan las migraciones; la ejecucion normal usa MySQL de Laragon. La autenticacion JWT y la integracion con React se agregaran en etapas posteriores.
+Los tests usan H2 en memoria y ejecutan las migraciones; la ejecucion normal usa MySQL de Laragon. El modelo de usuario define los roles `CLIENTE` y `ADMINISTRADOR`; las contrasenas se representan como hashes BCrypt. Los endpoints de registro/inicio de sesion con JWT y la integracion con React se agregaran en etapas posteriores.
 
 ## Pruebas
 

@@ -1,12 +1,16 @@
 package cl.gasvolcan.api.productos;
 
 import com.jayway.jsonpath.JsonPath;
+import cl.gasvolcan.api.usuarios.RolUsuario;
+import cl.gasvolcan.api.usuarios.Usuario;
+import cl.gasvolcan.api.usuarios.UsuarioRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -16,6 +20,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -40,9 +47,16 @@ class ProductoApiTests {
 	@Autowired
 	private ProductoRepository productoRepository;
 
+	@Autowired
+	private UsuarioRepository usuarioRepository;
+
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+
 	@BeforeEach
 	void limpiarProductos() {
 		productoRepository.deleteAll();
+		usuarioRepository.deleteAll();
 	}
 
 	@Test
@@ -86,6 +100,31 @@ class ProductoApiTests {
 				.andExpect(jsonPath("$.paths['/api/productos/{codigo}'].get").exists())
 				.andExpect(jsonPath("$.paths['/api/productos/{codigo}'].put").exists())
 				.andExpect(jsonPath("$.paths['/api/productos/{codigo}'].delete").exists());
+	}
+
+	@Test
+	void persisteUsuarioConRolYContrasenaHasheada() {
+		String contrasena = "Cliente1234";
+		String hash = passwordEncoder.encode(contrasena);
+		Usuario usuario = usuarioRepository.saveAndFlush(new Usuario(
+				"12345678K",
+				"Camila",
+				"Soto",
+				"camila@ejemplo.cl",
+				hash,
+				RolUsuario.CLIENTE,
+				"Región Metropolitana",
+				"Santiago",
+				"Av. Central 123"));
+
+		Usuario persistido = usuarioRepository
+				.findByEmailIgnoreCase("CAMILA@EJEMPLO.CL")
+				.orElseThrow();
+
+		assertNotEquals(contrasena, persistido.getPasswordHash());
+		assertTrue(passwordEncoder.matches(contrasena, persistido.getPasswordHash()));
+		assertEquals(RolUsuario.CLIENTE, persistido.getRol());
+		assertEquals(usuario.getRun(), persistido.getRun());
 	}
 
 	@Test
