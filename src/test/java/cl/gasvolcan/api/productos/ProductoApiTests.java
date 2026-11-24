@@ -77,6 +77,18 @@ class ProductoApiTests {
 	}
 
 	@Test
+	void documentaOperacionesCrudEnOpenApi() throws Exception {
+		mockMvc.perform(get("/v3/api-docs"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.info.title").value("Gas El Volcan API"))
+				.andExpect(jsonPath("$.paths['/api/productos'].get").exists())
+				.andExpect(jsonPath("$.paths['/api/productos'].post").exists())
+				.andExpect(jsonPath("$.paths['/api/productos/{codigo}'].get").exists())
+				.andExpect(jsonPath("$.paths['/api/productos/{codigo}'].put").exists())
+				.andExpect(jsonPath("$.paths['/api/productos/{codigo}'].delete").exists());
+	}
+
+	@Test
 	void actualizaYEliminaProducto() throws Exception {
 		MvcResult resultadoCreacion = mockMvc.perform(post("/api/productos")
 						.contentType(MediaType.APPLICATION_JSON)

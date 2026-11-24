@@ -21,6 +21,10 @@ Desde esta carpeta, en PowerShell:
 
 La API se ejecutara en `http://localhost:8080`.
 
+## Swagger / OpenAPI
+
+Con la aplicacion iniciada, abre `http://localhost:8080/swagger-ui/index.html` para explorar y probar la API. La especificacion OpenAPI en JSON esta disponible en `http://localhost:8080/v3/api-docs`.
+
 ## API de productos
 
 La API permite consultar, crear, editar y eliminar productos:
